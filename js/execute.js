@@ -1,0 +1,1 @@
+PokemonFightGame.init()

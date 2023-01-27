@@ -8,8 +8,15 @@ const PokemonFightGame = {
     ctx: undefined,
     canvasSize: { w: undefined, h: undefined },
     backgroundInstance: undefined,
-
-
+    platforms: [],
+    // mainPlatformPos: {
+    //     x: this.canvasSize.w * 0.2,
+    //     y: this.canvasSize.h * 0.7
+    // },
+    // mainPlatformSize: {
+    //     w: this.canvasSize.w - (this.canvasSize.w * 2 / 5),
+    //     h: this.canvasSize.h - (this.canvasSize.h - this.canvasSize.h * 0.5)
+    // },
 
     init() {
         this.setContext()
@@ -45,11 +52,23 @@ const PokemonFightGame = {
     },
     createFightingArena() {
         this.backgroundInstance = new Image()
-        this.backgroundInstance.src = '../img/fighting-arena-background.png'
+        this.backgroundInstance.src = './img/fighting-arena-background.png'
+
+    },
+    createFightingArena() {
+        // this.mainPlatformPos = {
+        //     x: this.canvasSize.w * 0.2,
+        //     y: this.canvasSize.h * 0.7
+        // }
+        // this.mainPlatformSize = {
+        //     w: this.canvasSize.w - (this.canvasSize.w * 2 / 5),
+        //     h: this.canvasSize.h - (this.canvasSize.h - this.canvasSize.h * 0.5)
+        // }
     },
     drawFightingArea() {
-        this.ctx.drawImage(this.backgroundInstance, 0, 0, this.canvasSize.w, this.canvasSize.h)
-        this.ctx.fillRect(292, 319, 180, 17)
-        this.ctx.styleRect()
+        // this.ctx.drawImage(this.backgroundInstance, 0, 0, this.canvasSize.w, this.canvasSize.h)
+        mainPlatform = new Platform(this.ctx, this.canvasSize, this.mainPlatformPos.x, this.mainPlatformPos.y, this.mainPlatformSize.w, this.mainPlatformSize.h)
+        this.platforms.push(this.mainPlatform)
+        platform1 = new Platform()
     },
 }

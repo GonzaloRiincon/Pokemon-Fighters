@@ -1,11 +1,24 @@
 class Platform {
-    constructor(ctx, canvasSize) {
+    constructor(ctx, canvasSize, platformPosX, platformPosY, platformSizeW, platformSizeH) {
         this.ctx = ctx
         this.canvasSize = canvasSize
         this.platformSize = {
-            w: this.canvasSize.w,
-            h: this.canvasSize.h,
+            w: platformSizeW,
+            h: platformSizeH,
         }
+        this.platformPos = {
+            x: platformPosX,
+            y: platformPosY,
+
+        }
+        this.init()
     }
 
+    init() {
+        this.drawPlatform()
+
+    }
+    drawPlatform() {
+        this.ctx.fillRect(this.platformPos.x, this.platformPos.y, this.platformSize.w, this.platformSize.h)
+    }
 }

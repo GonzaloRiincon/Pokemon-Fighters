@@ -3,7 +3,7 @@ class Platform {
         this.ctx = ctx
         this.canvasSize = canvasSize
         this.platformInstance = undefined
-        this.platformSize = { w: platformSizeW, h: 15 }
+        this.platformSize = { w: platformSizeW, h: 25 }
         this.platformPos = { x: platformPosX, y: this.canvasSize.h * 0.5 }
         this.platformSpeed = { x: 1, y: 0 }
         this.movement = movement

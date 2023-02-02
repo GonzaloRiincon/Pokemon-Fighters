@@ -1,12 +1,12 @@
 class Player {
-    constructor(ctx, canvasSize, frames, framesCounter, mainPlatformPos, mainPlatformSize, playerPosX, jumpKey, rightKey, leftKey, downKey, punchKey, whichPlayer) {
+    constructor(ctx, canvasSize, frames, framesCounter, mainPlatformPos, mainPlatformSize, playerPosX, jumpKey, rightKey, leftKey, downKey, punchKey, whichPlayer, runningRight, runningLeft, noMove, hit, hitLeft) {
         this.ctx = ctx
         this.canvasSize = canvasSize
         this.frames = frames
         this.framesCounter = framesCounter
         this.playerSize = {
-            w: 90,
-            h: 110
+            w: 140,
+            h: 120
         }
         this.mainPlatformPos = mainPlatformPos
         this.mainPlatformSize = mainPlatformSize
@@ -33,22 +33,126 @@ class Player {
         this.health = 100
         this.lives = 3
         this.strength = 10
+
+        this.noMoveInstance = new Image()
+        this.noMoveInstance.src = noMove
+        if (this.whichPlayer === 2) this.noMoveInstance.frames = 12
+        if (this.whichPlayer === 1) this.noMoveInstance.frames = 18
+
+        this.noMoveInstance.framesIndex = 0
+
+        this.runningInstance = new Image()
+        this.runningInstance.src = runningRight
+        this.runningInstance.frames = 12
+        this.runningInstance.framesIndex = 0
+
+        this.runningLeftInstance = new Image()
+        this.runningLeftInstance.src = runningLeft
+        this.runningLeftInstance.frames = 12
+        this.runningLeftInstance.framesIndex = 0
+
+        this.hitInstance = new Image()
+        this.hitInstance.src = hit
+
+        this.hitLeftInstance = new Image()
+        this.hitLeftInstance.src = hitLeft
     }
-    init() {
+    init(framesCounter) {
         this.setListeners()
-        this.drawPlayer()
+        this.drawPlayer(framesCounter)
     }
 
-    drawPlayer() {
-        this.ctx.fillStyle = 'red'
-        this.ctx.fillRect(this.playerPos.x, this.playerPos.y, this.playerSize.w, this.playerSize.h)
+    drawPlayer(framesCounter) {
+        if (!this.canRight && !this.canLeft) {
+            this.ctx.drawImage(
+                this.noMoveInstance,
+                this.noMoveInstance.width / this.noMoveInstance.frames * this.noMoveInstance.framesIndex,
+                0,
+                this.noMoveInstance.width / this.noMoveInstance.frames,
+                this.noMoveInstance.height,
+                this.playerPos.x,
+                this.playerPos.y,
+                this.playerSize.w,
+                this.playerSize.h
+            )
+            this.animate(framesCounter)
+        }
+        if (this.canRight) {
+            this.ctx.drawImage(
+                this.runningInstance,
+                this.runningInstance.width / this.runningInstance.frames * this.runningInstance.framesIndex,
+                0,
+                this.runningInstance.width / this.runningInstance.frames,
+                this.runningInstance.height,
+                this.playerPos.x,
+                this.playerPos.y,
+                this.playerSize.w,
+                this.playerSize.h
+            )
+
+            this.animate(framesCounter)
+        }
+        if (this.canLeft) {
+            this.ctx.drawImage(
+                this.runningLeftInstance,
+                this.runningLeftInstance.width / this.runningLeftInstance.frames * this.runningLeftInstance.framesIndex,
+                0,
+                this.runningLeftInstance.width / this.runningLeftInstance.frames,
+                this.runningLeftInstance.height,
+                this.playerPos.x,
+                this.playerPos.y,
+                this.playerSize.w,
+                this.playerSize.h
+            )
+
+            this.animate(framesCounter)
+        }
         this.move()
     }
+
+    animate(framesCounter) {
+
+        if (framesCounter % 8 == 0) {
+            this.runningInstance.framesIndex++;
+            this.runningLeftInstance.framesIndex++;
+            this.noMoveInstance.framesIndex++
+        }
+
+        if (this.runningInstance.framesIndex >= this.runningInstance.frames) {
+            this.runningInstance.framesIndex = 0
+        }
+        if (this.runningLeftInstance.framesIndex >= this.runningLeftInstance.frames) {
+            this.runningLeftInstance.framesIndex = 0
+        }
+        if (this.noMoveInstance.framesIndex >= this.noMoveInstance.frames) {
+            this.noMoveInstance.framesIndex = 0
+        }
+
+
+    }
+
 
     setListeners() {
         document.addEventListener('keydown', ({ code }) => {
             if (code === this.keys.punch && this.canPunch) {
                 this.createPunch()
+                if (this.canRight) {
+                    this.ctx.drawImage(this.hitInstance, this.playerPos.x, this.playerPos.y, this.playerSize.w, this.playerSize.h)
+                }
+                if (this.canLeft) {
+                    this.ctx.drawImage(this.hitLeftInstance, this.playerPos.x, this.playerPos.y, this.playerSize.w, this.playerSize.h)
+                }
+                if (this.whichPlayer === 1) {
+                    if (!this.canRight && !this.canLeft) {
+                        this.ctx.drawImage(this.hitInstance, this.playerPos.x, this.playerPos.y, this.playerSize.w, this.playerSize.h)
+                    }
+                }
+                if (this.whichPlayer === 2) {
+                    if (!this.canRight && !this.canLeft) {
+                        this.ctx.drawImage(this.hitLeftInstance, this.playerPos.x, this.playerPos.y, this.playerSize.w, this.playerSize.h)
+                    }
+                }
+
                 this.clearPunches()
                 this.canPunch = false
             }

@@ -1,1 +1,4 @@
-PokemonFightGame.init()
+window.onload = () => {
+    nonPokemonFightGame.init()
+}
+

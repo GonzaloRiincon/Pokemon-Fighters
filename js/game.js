@@ -1,5 +1,5 @@
-const PokemonFightGame = {
-    name: 'Pokemon Fight Game',
+const nonPokemonFightGame = {
+    name: 'nonPokemon Fight Game',
     description: 'This is a pokemon combat style fighting game',
     version: '1.0.0',
     license: undefined,
@@ -9,6 +9,8 @@ const PokemonFightGame = {
     canvasSize: { w: window.innerWidth, h: window.innerHeight },
     backgroundInstance: undefined,
     livesInstance: undefined,
+    p1winsInstance: undefined,
+    p2winsInstance: undefined,
     mainPlatform: undefined,
     platform1: undefined,
     platform2: undefined,
@@ -19,6 +21,9 @@ const PokemonFightGame = {
     frames: 60,
     framesCounter: 0,
     interval: undefined,
+    imageInstance: undefined,
+
+
     init() {
         this.setContext()
         this.setDimensions()
@@ -26,11 +31,12 @@ const PokemonFightGame = {
         this.createPlayers()
         this.start()
     },
+
     setContext() {
         this.canvasTag = document.querySelector('canvas')
         this.ctx = this.canvasTag.getContext('2d')
-        console.log(this.ctx)
     },
+
     setDimensions() {
         this.canvasSize = {
             w: window.innerWidth - 10,
@@ -39,6 +45,7 @@ const PokemonFightGame = {
         this.canvasTag.setAttribute('width', this.canvasSize.w)
         this.canvasTag.setAttribute('height', this.canvasSize.h)
     },
+
     start() {
         this.interval = setInterval(() => {
             this.clearAll()
@@ -46,13 +53,13 @@ const PokemonFightGame = {
             this.collisions()
             this.loseHealth()
             this.createPowerUps()
-            this.framesCounter++
+            this.framesCounter += 1
+
             if (this.framesCounter % 60 === 0) {
                 this.player1.canPunch = true
                 this.player2.canPunch = true
             }
         }, 1000 / this.frames)
-
     },
 
     drawAll() {
@@ -74,22 +81,9 @@ const PokemonFightGame = {
         this.platform2 = this.platforms.push(new Platform(this.ctx, this.canvasSize, this.canvasSize.w * 0.65, this.canvasSize.h * 0.45, 2))
     },
 
-    drawFightingArena() {
-        this.ctx.drawImage(this.backgroundInstance, 0, 0, this.canvasSize.w, this.canvasSize.h)
-        this.mainPlatform.init()
-        this.platforms.forEach(platform => platform.init())
-        console.log(this.canvasSize)
-    },
-
     createPlayers() {
-        this.player1 = new Player(this.ctx, this.canvasSize, this.frames, this.framesCounter, this.mainPlatform.platformPos, this.mainPlatform.platformSize, this.canvasSize.w * 0.3, 'KeyW', 'KeyD', 'KeyA', 'KeyS', 'KeyF', 1)
-        this.player2 = new Player(this.ctx, this.canvasSize, this.frames, this.framesCounter, this.mainPlatform.platformPos, this.mainPlatform.platformSize, this.canvasSize.w * 0.6, 'ArrowUp', 'ArrowRight', 'ArrowLeft', 'ArrowDown', 'Space', 2)
-    },
-
-    drawPlayers() {
-        this.player1.init()
-        this.player2.init()
-        this.punchHitBox()
+        this.player1 = new Player(this.ctx, this.canvasSize, this.frames, this.framesCounter, this.mainPlatform.platformPos, this.mainPlatform.platformSize, this.canvasSize.w * 0.3, 'KeyW', 'KeyD', 'KeyA', 'KeyS', 'KeyF', 1, './img/p1-running.png', './img/p1-runningLeft.png', './img/p1-noMove.png', './img/p1-hit.png', './img/p1-hitLeft.png')
+        this.player2 = new Player(this.ctx, this.canvasSize, this.frames, this.framesCounter, this.mainPlatform.platformPos, this.mainPlatform.platformSize, this.canvasSize.w * 0.6, 'ArrowUp', 'ArrowRight', 'ArrowLeft', 'ArrowDown', 'Space', 2, './img/p2-running.png', './img/p2-runningLeft.png', './img/p2-noMove.png', './img/p2-hit.png', './img/p2-hitLeft.png')
     },
 
     createPowerUps() {
@@ -98,10 +92,65 @@ const PokemonFightGame = {
         }
     },
 
+    drawFightingArena() {
+        this.ctx.drawImage(this.backgroundInstance, 0, 0, this.canvasSize.w, this.canvasSize.h)
+        this.mainPlatform.init()
+        this.platforms.forEach(platform => platform.init())
+    },
+
+
+    drawPlayers() {
+        this.player1.init(this.framesCounter)
+        this.player2.init(this.framesCounter)
+        this.punchHitBox()
+    },
+
+
     drawPowerUps() {
         this.powerUpsArr.forEach(powerUp => {
             powerUp.init()
         })
+    },
+
+    drawHUD() {
+        this.ctx.font = '50px arial black'
+        this.livesInstance = new Image()
+        this.livesInstance.src = './img/lives.png'
+        this.ctx.drawImage(this.livesInstance, 20, 15, 60, 55)
+        this.ctx.drawImage(this.livesInstance, this.canvasSize.w - 80, 15, 60, 55)
+        this.ctx.font = '50px arial black'
+        this.ctx.fillText(`${this.player2.lives}`, this.canvasSize.w - 120, 60)
+        this.ctx.fillStyle = 'black'
+        this.ctx.fillRect(150, 15, 650, 55)
+        this.ctx.fillStyle = 'red'
+        this.ctx.fillRect(151, 16, 648 * this.player1.health / 100, 53)
+        this.ctx.font = '50px arial black'
+        this.ctx.fillText(`${this.player1.lives}`, 90, 60)
+        this.ctx.font = '50px arial black'
+        this.ctx.fillText(`${this.player2.lives}`, this.canvasSize.w - 120, 60)
+        this.ctx.fillStyle = 'black'
+        this.ctx.fillRect(this.canvasSize.w - 150, 15, -650, 55)
+        this.ctx.fillStyle = 'red'
+        this.ctx.fillRect(this.canvasSize.w - 151, 16, -648 * this.player2.health / 100, 53)
+    },
+
+    drawGameOver1() {
+        console.log('player1wins')
+        this.clearAll()
+        this.ctx.fillStyle = 'black'
+        this.ctx.fillRect(0, 0, this.canvasSize.w, this.canvasSize.h)
+        this.p1winsInstance = new Image()
+        this.p1winsInstance.src = './img/startingImage.png'
+        this.ctx.drawImage(this.p1winsInstance, this.canvasSize.w / 2, this.canvasSize.h / 2, 200, 200)
+    },
+    drawGameOver2() {
+        console.log('player2wins')
+        this.clearAll()
+        this.ctx.fillStyle = 'black'
+        this.ctx.fillRect(0, 0, this.canvasSize.w, this.canvasSize.h)
+        this.p2winsInstance = new Image()
+        this.p2winsInstance.src = './img/startingImage.png'
+        this.ctx.drawImage(this.p2winsInstance, this.canvasSize.w / 2, this.canvasSize.h, 200, 200)
     },
 
     collisions() {
@@ -159,8 +208,6 @@ const PokemonFightGame = {
                 punch.punchPos.x + punch.punchSize.w > this.player2.playerPos.x &&
                 punch.punchPos.x < this.player2.playerPos.x + this.player2.playerSize.w) {
                 this.player2.health -= this.player1.strength
-                console.log(this.player2.health)
-                console.log(this.player2.lives)
             }
         })
         this.player2.punches.forEach(punch => {
@@ -169,46 +216,18 @@ const PokemonFightGame = {
                 punch.punchPos.x + punch.punchSize.w > this.player1.playerPos.x &&
                 punch.punchPos.x < this.player1.playerPos.x + this.player1.playerSize.w) {
                 this.player1.health -= this.player2.strength
-                console.log(this.player1.health)
-                console.log(this.player1.lives)
             }
         })
-    },
-
-    drawHUD() {
-        this.ctx.font = '50px arial black'
-        this.livesInstance = new Image()
-        this.livesInstance.src = './img/lives.png'
-        this.ctx.drawImage(this.livesInstance, 20, 15, 60, 55)
-        this.ctx.fillText(`${this.player1.lives}`, 90, 60)
-        this.ctx.drawImage(this.livesInstance, this.canvasSize.w - 80, 15, 60, 55)
-        this.ctx.fillText(`${this.player2.lives}`, this.canvasSize.w - 120, 60)
-        this.ctx.fillStyle = 'black'
-        this.ctx.fillRect(150, 15, 650, 55)
-        this.ctx.fillStyle = 'red'
-        this.ctx.fillRect(151, 16, 648 * this.player1.health / 100, 53)
-
-        this.ctx.fillStyle = 'black'
-        this.ctx.fillRect(this.canvasSize.w - 150, 15, -650, 55)
-        this.ctx.fillStyle = 'red'
-        this.ctx.fillRect(this.canvasSize.w - 151, 16, -648 * this.player2.health / 100, 53)
-
-    },
-
-    drawGameOver() {
-        this.clearAll()
-        this.ctx.font = '250px arial'
-        this.ctx.fillText('Game Over!', 250, 500)
     },
 
     loseHealth() {
         if (this.player1.lives === 0) {
             clearInterval(this.interval)
-            this.drawGameOver()
+            this.drawGameOver2()
         }
         if (this.player2.lives === 0) {
             clearInterval(this.interval)
-            this.drawGameOver()
+            this.drawGameOver1()
         }
         if (this.player1.health <= 0) {
             this.player1.lives -= 1

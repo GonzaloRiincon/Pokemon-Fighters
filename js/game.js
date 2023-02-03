@@ -9,8 +9,6 @@ const nonPokemonFightGame = {
     canvasSize: { w: window.innerWidth, h: window.innerHeight },
     backgroundInstance: undefined,
     livesInstance: undefined,
-    p1winsInstance: undefined,
-    p2winsInstance: undefined,
     mainPlatform: undefined,
     platform1: undefined,
     platform2: undefined,
@@ -21,7 +19,6 @@ const nonPokemonFightGame = {
     frames: 60,
     framesCounter: 0,
     interval: undefined,
-    imageInstance: undefined,
 
 
     init() {
@@ -29,6 +26,7 @@ const nonPokemonFightGame = {
         this.setDimensions()
         this.createFightingArena()
         this.createPlayers()
+        this.startSound()
         this.start()
     },
 
@@ -60,6 +58,11 @@ const nonPokemonFightGame = {
                 this.player2.canPunch = true
             }
         }, 1000 / this.frames)
+    },
+    startSound() {
+        this.backgroundSound = new Audio()
+        this.backgroundSound.src = './audio/backgroundSound.mp3'
+        this.backgroundSound.volume = 0.15
     },
 
     drawAll() {
@@ -135,22 +138,21 @@ const nonPokemonFightGame = {
     },
 
     drawGameOver1() {
-        console.log('player1wins')
         this.clearAll()
         this.ctx.fillStyle = 'black'
         this.ctx.fillRect(0, 0, this.canvasSize.w, this.canvasSize.h)
-        this.p1winsInstance = new Image()
-        this.p1winsInstance.src = './img/startingImage.png'
-        this.ctx.drawImage(this.p1winsInstance, this.canvasSize.w / 2, this.canvasSize.h / 2, 200, 200)
+        this.ctx.fillStyle = 'red'
+        this.ctx.font = 'bold 100px serif'
+        this.ctx.fillText('PLAYER 1 WINS!', 500, this.canvasSize.h / 2 - 30)
+
     },
     drawGameOver2() {
-        console.log('player2wins')
         this.clearAll()
         this.ctx.fillStyle = 'black'
         this.ctx.fillRect(0, 0, this.canvasSize.w, this.canvasSize.h)
-        this.p2winsInstance = new Image()
-        this.p2winsInstance.src = './img/startingImage.png'
-        this.ctx.drawImage(this.p2winsInstance, this.canvasSize.w / 2, this.canvasSize.h, 200, 200)
+        this.ctx.fillStyle = 'red'
+        this.ctx.font = 'bold 100px serif'
+        this.ctx.fillText('PLAYER 2 WINS!', 500, this.canvasSize.h / 2 - 30)
     },
 
     collisions() {
@@ -220,38 +222,50 @@ const nonPokemonFightGame = {
         })
     },
 
+    deathSound() {
+        this.deathsSound = new Audio()
+        this.deathsSound.src = './audio/deathsSound.mp3'
+        this.deathsSound.play()
+    },
+
     loseHealth() {
         if (this.player1.lives === 0) {
             clearInterval(this.interval)
+            this.backgroundSound.pause()
             this.drawGameOver2()
         }
         if (this.player2.lives === 0) {
             clearInterval(this.interval)
+            this.backgroundSound.pause()
             this.drawGameOver1()
         }
         if (this.player1.health <= 0) {
+            this.deathSound()
             this.player1.lives -= 1
             this.player1.health = 100
-            this.player1.playerPos.y = 200
+            this.player1.playerPos.y = -50
             this.player1.playerPos.x = this.canvasSize.w * 0.3
         }
-        if (this.player1.playerPos.y >= this.canvasSize.h * 2) {
+        if (this.player1.playerPos.y >= this.canvasSize.h * 1.5) {
+            this.deathSound()
             this.player1.lives -= 1
             this.player1.health = 100
-            this.player1.playerPos.y = 200
+            this.player1.playerPos.y = -50
             this.player1.playerPos.x = this.canvasSize.w * 0.3
         }
 
         if (this.player2.health <= 0) {
+            this.deathSound()
             this.player2.lives -= 1
             this.player2.health = 100
-            this.player2.playerPos.y = 200
+            this.player2.playerPos.y = -50
             this.player2.playerPos.x = this.canvasSize.w * 0.6
         }
         if (this.player2.playerPos.y >= this.canvasSize.h * 2) {
+            this.deathSound()
             this.player2.lives -= 1
             this.player2.health = 100
-            this.player2.playerPos.y = 200
+            this.player2.playerPos.y = -50
             this.player2.playerPos.x = this.canvasSize.w * 0.6
         }
     }

@@ -53,8 +53,9 @@ class Player {
 
         this.hitInstance = new Image()
         this.hitInstance.src = hit
+        this.hitSound = undefined,
 
-        this.hitLeftInstance = new Image()
+            this.hitLeftInstance = new Image()
         this.hitLeftInstance.src = hitLeft
     }
     init(framesCounter) {
@@ -215,6 +216,10 @@ class Player {
     createPunch() {
         this.punches.push(new Punch(this.ctx, this.canvasSize, this.playerPos, this.playerSize, this.canRight, this.canLeft, this.whichPlayer))
         this.punches[0].init()
+        this.hitSound = new Audio()
+        this.hitSound.src = './audio/hitSound.mp3'
+        this.hitSound.play()
+
     }
 
     clearPunches() {
